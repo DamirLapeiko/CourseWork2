@@ -7,6 +7,11 @@ FROM flashcard;
 INSERT INTO flashcard (name)
 VALUES (?);
 
+--Главная страница: удаление карточки
+DELETE
+FROM flashcard
+WHERE flashcard.id = ?;
+
 --Набор: список карточек
 SELECT card.id        AS id,
        card.question  AS question,
@@ -14,6 +19,17 @@ SELECT card.id        AS id,
        card.isLearned AS isLearned
 FROM card
 WHERE flashcard_id = ?;
+
+--Набор: список не выученных карточек
+SELECT card.id        AS id,
+       card.question  AS question,
+       card.answer    AS answer,
+       card.isLearned AS isLearned
+FROM card
+WHERE flashcard_id = ?;
+AND NOT card.isLearned
+ORDER BY card.id
+LIMIT 1 OFFSET ?;
 
 --Редактирование набора: удаление карточки
 DELETE
@@ -48,8 +64,7 @@ WHERE card.id = ?;
 --Главная страница: подсчет карточек в папках
 SELECT flashcard.id   AS id,
        flashcard.name AS name,
-       count(card.id)    FILTER ( WHERE card.isLearned ) AS learned_cards,
-       count(card.id)                                    AS total_cards_count
+       count(card.id)    FILTER ( WHERE card.isLearned ) AS learned_cards, count(card.id) AS total_cards_count
 FROM flashcard
          LEFT JOIN card ON flashcard.id = flashcard_id
 GROUP BY flashcard.id;
