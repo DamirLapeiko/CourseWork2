@@ -124,7 +124,6 @@ public class CardJdbcRepository implements CardRepository {
                  """;
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            isLearned = true;
             statement.setBoolean(1, isLearned);
             statement.setLong(2, cardId);
             statement.executeUpdate();
