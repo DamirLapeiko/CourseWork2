@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface FlashcardRepository {
 
-    List<Flashcard> findAllCards();
+    List<Flashcard> findAllFlashcards();
 
     void addFlashcard(String name);
 

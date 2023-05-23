@@ -9,27 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CardJdbcRepository implements CardRepository {
     private final DataSource db;
 
     public CardJdbcRepository(DataSource db) {
         this.db = db;
-    }
-
-    private List<Card> getCardsList(PreparedStatement statement) throws SQLException {
-        ResultSet resultSet = statement.executeQuery();
-        List<Card> cardsList = new ArrayList<>();
-        while (resultSet.next()) {
-            Card card = new Card(
-                    resultSet.getLong("id"),
-                    resultSet.getString("name"),
-                    resultSet.getString("answer"),
-                    resultSet.getBoolean("isLearned")
-            );
-            cardsList.add(card);
-        }
-        return cardsList;
     }
 
     @Override
@@ -40,26 +26,37 @@ public class CardJdbcRepository implements CardRepository {
                        card.answer    AS answer,
                        card.isLearned AS isLearned
                 FROM card
-                WHERE flashcard_id = ?;
+                WHERE flashcardId = ?;
                 """;
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, flashcardId);
-            return getCardsList(statement);
+            ResultSet resultSet = statement.executeQuery();
+            List<Card> cardsList = new ArrayList<>();
+            while (resultSet.next()) {
+                Card card = new Card(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("answer"),
+                        resultSet.getBoolean("isLearned")
+                );
+                cardsList.add(card);
+            }
+            return cardsList;
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public List<Card> findCardsByFlashcardIdAndOffset(long flashcardId, int offset) {
+    public Optional<Card> findCardsByFlashcardIdAndOffset(long flashcardId, int offset) {
         String sql = """
                 SELECT card.id        AS id,
                        card.question  AS question,
                        card.answer    AS answer,
                        card.isLearned AS isLearned
                 FROM card
-                WHERE flashcard_id = ?;
+                WHERE flashcardId = ?;
                 AND NOT card.isLearned
                 ORDER BY card.id
                 LIMIT 1 OFFSET ?;
@@ -68,16 +65,26 @@ public class CardJdbcRepository implements CardRepository {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, flashcardId);
             statement.setLong(2, offset);
-            return getCardsList(statement);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(new Card(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("answer"),
+                        resultSet.getBoolean("isLearned")
+                ));
+            } else {
+                return Optional.empty();
+            }
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void addCard(long cardId, String question, String answer, boolean isLearned) {
         String sql = """
-                INSERT INTO card (flashcard_id, question, answer, isLearned)
+                INSERT INTO card (flashcardId, question, answer, isLearned)
                 VALUES (?, ?, ?, ?);
                 """;
         try (Connection connection = db.getConnection();
@@ -88,7 +95,7 @@ public class CardJdbcRepository implements CardRepository {
             statement.setBoolean(4, isLearned);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,7 +111,7 @@ public class CardJdbcRepository implements CardRepository {
             statement.setLong(1, cardId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -112,15 +119,17 @@ public class CardJdbcRepository implements CardRepository {
     public void updateLearnedCard(long cardId, boolean isLearned) {
         String sql = """
                 UPDATE card
-                SET isLearned = TRUE
+                SET isLearned = ?
                 WHERE card.id = ?;
                  """;
         try (Connection connection = db.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, cardId);
+            isLearned = true;
+            statement.setBoolean(1, isLearned);
+            statement.setLong(2, cardId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 }

@@ -15,7 +15,7 @@ public class FlashcardJdbcRepository implements FlashcardRepository {
     }
 
     @Override
-    public List<Flashcard> findAllCards() {
+    public List<Flashcard> findAllFlashcards() {
         String sql = """
                 SELECT flashcard.id   AS id,
                        flashcard.name AS name,
@@ -40,7 +40,7 @@ public class FlashcardJdbcRepository implements FlashcardRepository {
             }
             return flashcardsList;
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -55,7 +55,7 @@ public class FlashcardJdbcRepository implements FlashcardRepository {
             statement.setString(1, name);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
@@ -71,7 +71,7 @@ public class FlashcardJdbcRepository implements FlashcardRepository {
             statement.setLong(1, flashcardId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 }

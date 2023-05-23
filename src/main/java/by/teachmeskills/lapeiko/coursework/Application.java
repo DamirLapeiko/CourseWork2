@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -28,7 +29,7 @@ public class Application {
             flashcardRepo.addFlashcard("Английский: Цвета");
             flashcardRepo.addFlashcard("Английский: Животные");
 
-            List<Flashcard> flashcards = flashcardRepo.findAllCards();
+            List<Flashcard> flashcards = flashcardRepo.findAllFlashcards();
             System.out.println(flashcards);
 
             flashcardRepo.removeFlashcard(2);
@@ -43,8 +44,8 @@ public class Application {
             List<Card> cards = cardRepo.findCardsByFlashcardId(1);
             System.out.println(cards);
 
-            List<Card> cards1 = cardRepo.findCardsByFlashcardIdAndOffset(1, 0);
-            System.out.println(cards1);
+            Optional<Card> cardsOpt = cardRepo.findCardsByFlashcardIdAndOffset(1, 0);
+            System.out.println(cardsOpt);
 
             cardRepo.updateLearnedCard(1, true);
             cardRepo.updateLearnedCard(3, true);

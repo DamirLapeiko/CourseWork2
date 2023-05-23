@@ -8,6 +8,7 @@ import by.teachmeskills.lapeiko.coursework.repository.FlashcardRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CardServiceImpl implements CardService {
     FlashcardRepository flashcardRepository;
@@ -19,8 +20,8 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public List<Flashcard> findAllCards() {
-        List<Flashcard> flashCards = flashcardRepository.findAllCards();
+    public List<Flashcard> findAllFlashcards() {
+        List<Flashcard> flashCards = flashcardRepository.findAllFlashcards();
         if (!flashCards.isEmpty()) {
             return flashCards;
         } else {
@@ -50,12 +51,12 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public List<Card> findCardsByFlashcardIdAndOffset(long flashcardId, int offset) {
-        List<Card> cardList = cardRepository.findCardsByFlashcardIdAndOffset(flashcardId, offset);
+    public Optional<Card> findCardsByFlashcardIdAndOffset(long flashcardId, int offset) {
+        Optional<Card> cardList = cardRepository.findCardsByFlashcardIdAndOffset(flashcardId, offset);
         if (!cardList.isEmpty()) {
             return cardList;
         } else {
-            return new ArrayList<>();
+            return Optional.empty();
         }
     }
 

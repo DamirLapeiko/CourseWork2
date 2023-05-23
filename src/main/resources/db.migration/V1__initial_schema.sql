@@ -7,7 +7,7 @@ CREATE TABLE flashcard
 CREATE TABLE card
 (
     id           BIGSERIAL PRIMARY KEY,
-    flashcard_id BIGINT  NOT NULL REFERENCES flashcard ON DELETE CASCADE,
+    flashcardId BIGINT  NOT NULL REFERENCES flashcard ON DELETE CASCADE,
     question     TEXT    NOT NULL,
     answer       TEXT    NOT NULL,
     isLearned    BOOLEAN NOT NULL
