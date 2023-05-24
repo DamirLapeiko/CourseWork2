@@ -6,6 +6,7 @@ import by.teachmeskills.lapeiko.coursework.repository.CardJdbcRepository;
 import by.teachmeskills.lapeiko.coursework.repository.CardRepository;
 import by.teachmeskills.lapeiko.coursework.repository.FlashcardJdbcRepository;
 import by.teachmeskills.lapeiko.coursework.repository.FlashcardRepository;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,11 @@ public class Application {
 
     public static void main(String[] args) {
         log.info("Программа запущена");
-        try (HikariDataSource db = new HikariDataSource()) {
-            db.setJdbcUrl(System.getenv("DB_URL"));
-            db.setUsername(System.getenv("DB_USER"));
-            db.setPassword(System.getenv("DB_PASSWORD"));
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(System.getenv("DB_URL"));
+        hikariConfig.setUsername(System.getenv("DB_USER"));
+        hikariConfig.setPassword(System.getenv("DB_PASSWORD"));
+        try (HikariDataSource db = new HikariDataSource(hikariConfig)) {
 
             FlashcardRepository flashcardRepo = new FlashcardJdbcRepository(db);
             CardRepository cardRepo = new CardJdbcRepository(db);
